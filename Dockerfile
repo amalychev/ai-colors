@@ -5,7 +5,7 @@ FROM python:3.11-slim
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
@@ -42,8 +42,7 @@ RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
 # Копируем и настраиваем entrypoint скрипт
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/
 
 # Устанавливаем entrypoint
 ENTRYPOINT ["docker-entrypoint.sh"]
