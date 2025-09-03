@@ -1,0 +1,142 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyTorch
+*.pth
+*.ckpt
+*.pt
+
+# Исключение для финальных моделей (разрешаем их коммитить)
+!models/color_palette_generator_final.pth
+
+# Virtual environments
+ai-colors-env/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+training_history.png
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Data files
+data/*.txt
+data/*.json
+data/*.csv
+
+# Training images (большие файлы)
+training_images/*.jpg
+training_images/*.jpeg
+training_images/*.png
+training_images/*.gif
+training_images/*.bmp
+# Но разрешаем README в training_images
+!training_images/README.md
+
+# Models (все checkpoint'ы кроме финального)
+models/checkpoint_*.pth
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Cache
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Docker
+.docker/
+
+# Backup
+backup/
+
+# Node.js (если будет фронтенд)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# MacOS
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Spyder
+.spyderproject
+.spyproject
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json

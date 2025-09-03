@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  ai-colors:
+    build: .
+    container_name: ai-colors-app
+    ports:
+      - "8080:8080"
+    volumes:
+      # Монтируем папки для данных
+      - ./models:/app/models:rw
+      - ./data:/app/data:rw
+      - ./training_images:/app/training_images:ro
+    environment:
+      - PYTHONPATH=/app
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Опциональный Nginx для проксирования (для продакшена)
+  nginx:
+    image: nginx:alpine
+    container_name: ai-colors-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - ai-colors
+    restart: unless-stopped
+    profiles:
+      - production

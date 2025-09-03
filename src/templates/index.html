@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 AI Colors - Генератор цветовых палитр</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2em;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-inputs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .color-input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+        }
+
+        .color-input {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #ddd;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .color-input:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .color-input::-webkit-color-swatch {
+            border: none;
+            border-radius: 50%;
+        }
+
+        .color-input::-webkit-color-swatch-wrapper {
+            padding: 0;
+            border-radius: 50%;
+        }
+
+        .color-hex {
+            margin-top: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .remove-color {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            background: #ff4757;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            display: none;
+        }
+
+        .color-input-group:hover .remove-color {
+            display: block;
+        }
+
+        .add-color {
+            width: 80px;
+            height: 80px;
+            border: 3px dashed #ddd;
+            border-radius: 50%;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: #ddd;
+            transition: all 0.3s ease;
+        }
+
+        .add-color:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: scale(1.1);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: end;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .control-group input, .control-group select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .generate-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+        }
+
+        .palette-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .palette-color {
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: end;
+            padding: 10px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .palette-color:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .harmony-score {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .score-bar {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: all 0.5s ease;
+        }
+
+        .variations {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .variation {
+            flex: 1;
+            min-width: 250px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .variation.best {
+            border-color: #52c41a;
+            background: #f6ffed;
+        }
+
+        .variation:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .copy-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #52c41a;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .copy-notification.show {
+            transform: translateX(0);
+        }
+
+        .error {
+            background: #fff2f0;
+            border: 1px solid #ffccc7;
+            color: #cf1322;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .palette-color {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 AI Colors</h1>
+            <p>Генератор гармоничных цветовых палитр на основе нейросетей</p>
+        </div>
+
+        <div class="card">
+            <div class="input-section">
+                <div class="section-title">
+                    🎯 Входные цвета
+                </div>
+                <div class="color-inputs" id="colorInputs">
+                    <div class="color-input-group">
+                        <input type="color" class="color-input" value="#ff0000" data-index="0">
+                        <div class="color-hex">#FF0000</div>
+                        <button class="remove-color" onclick="removeColor(0)">×</button>
+                    </div>
+                    <div class="color-input-group">
+                        <input type="color" class="color-input" value="#00ff00" data-index="1">
+                        <div class="color-hex">#00FF00</div>
+                        <button class="remove-color" onclick="removeColor(1)">×</button>
+                    </div>
+                    <button class="add-color" onclick="addColor()">+</button>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="targetCount">Количество цветов в палитре:</label>
+                    <input type="number" id="targetCount" min="2" max="10" value="5">
+                </div>
+                
+                <div class="control-group">
+                    <label for="variations">Количество вариаций:</label>
+                    <input type="number" id="variations" min="1" max="5" value="1">
+                </div>
+                
+                <div class="control-group">
+                    <label for="randomize">Рандомизация:</label>
+                    <select id="randomize">
+                        <option value="true">Включена</option>
+                        <option value="false">Выключена</option>
+                    </select>
+                </div>
+                
+                <button class="generate-btn" onclick="generatePalette()">
+                    ✨ Генерировать палитру
+                </button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Генерируем вашу идеальную палитру...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="results" id="results">
+            <div class="card">
+                <div class="section-title">
+                    🌈 Результат
+                </div>
+                <div id="paletteResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="copy-notification" id="copyNotification">
+        Цвет скопирован в буфер обмена!
+    </div>
+
+    <script>
+        let colorIndex = 2;
+        const maxColors = 9;
+
+        function updateColorHex(input, index) {
+            const hexDisplay = input.parentNode.querySelector('.color-hex');
+            hexDisplay.textContent = input.value.toUpperCase();
+        }
+
+        function addColor() {
+            if (document.querySelectorAll('.color-input').length >= maxColors) {
+                alert(`Максимум ${maxColors} цветов`);
+                return;
+            }
+
+            const colorInputs = document.getElementById('colorInputs');
+            const addButton = colorInputs.querySelector('.add-color');
+            
+            const newGroup = document.createElement('div');
+            newGroup.className = 'color-input-group';
+            newGroup.innerHTML = `
+                <input type="color" class="color-input" value="#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}" data-index="${colorIndex}">
+                <div class="color-hex">#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0').toUpperCase()}</div>
+                <button class="remove-color" onclick="removeColor(${colorIndex})">×</button>
+            `;
+            
+            colorInputs.insertBefore(newGroup, addButton);
+            
+            const newInput = newGroup.querySelector('.color-input');
+            updateColorHex(newInput, colorIndex);
+            newInput.addEventListener('input', function() {
+                updateColorHex(this, this.dataset.index);
+            });
+            
+            colorIndex++;
+        }
+
+        function removeColor(index) {
+            const inputs = document.querySelectorAll('.color-input');
+            if (inputs.length <= 1) {
+                alert('Минимум 1 цвет');
+                return;
+            }
+            
+            const input = document.querySelector(`[data-index="${index}"]`);
+            if (input) {
+                input.parentNode.remove();
+            }
+        }
+
+        // Добавляем обработчики для существующих inputs
+        document.querySelectorAll('.color-input').forEach(input => {
+            input.addEventListener('input', function() {
+                updateColorHex(this, this.dataset.index);
+            });
+        });
+
+        async function generatePalette() {
+            const inputs = document.querySelectorAll('.color-input');
+            const inputColors = Array.from(inputs).map(input => {
+                const hex = input.value;
+                return [
+                    parseInt(hex.substr(1, 2), 16),
+                    parseInt(hex.substr(3, 2), 16),
+                    parseInt(hex.substr(5, 2), 16)
+                ];
+            });
+
+            const targetCount = parseInt(document.getElementById('targetCount').value);
+            const variations = parseInt(document.getElementById('variations').value);
+            const randomize = document.getElementById('randomize').value === 'true';
+
+            // Показываем loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.querySelector('.generate-btn').disabled = true;
+
+            try {
+                const results = [];
+                
+                for (let i = 0; i < variations; i++) {
+                    const response = await fetch('/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            input_colors: inputColors,
+                            target_count: targetCount,
+                            randomize: randomize
+                        })
+                    });
+
+                    const result = await response.json();
+                    
+                    if (!result.success) {
+                        throw new Error(result.error);
+                    }
+                    
+                    results.push(result);
+                }
+
+                displayResults(results, inputColors);
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('error').innerHTML = `❌ Ошибка: ${error.message}`;
+                document.getElementById('error').style.display = 'block';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.querySelector('.generate-btn').disabled = false;
+            }
+        }
+
+        function displayResults(results, inputColors) {
+            const resultsDiv = document.getElementById('paletteResults');
+            
+            if (results.length === 1) {
+                // Одна палитра
+                const result = results[0];
+                resultsDiv.innerHTML = `
+                    <div class="palette-display">
+                        ${result.palette.map(color => `
+                            <div class="palette-color" 
+                                 style="background-color: rgb(${color[0]}, ${color[1]}, ${color[2]})"
+                                 onclick="copyColor('${rgbToHex(color)}')"
+                                 title="Нажмите для копирования">
+                                ${rgbToHex(color)}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="harmony-score">
+                        <h3>🎵 Оценка гармоничности</h3>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${result.harmony_score * 100}%; background: linear-gradient(to right, #ff4757, #ffa726, #52c41a);"></div>
+                        </div>
+                        <p>${result.harmony_score.toFixed(3)} / 1.000 - ${getHarmonyLevel(result.harmony_score)}</p>
+                    </div>
+                `;
+            } else {
+                // Несколько вариаций
+                const bestIndex = results.reduce((best, current, index) => 
+                    current.harmony_score > results[best].harmony_score ? index : best, 0);
+                
+                resultsDiv.innerHTML = `
+                    <div class="variations">
+                        ${results.map((result, index) => `
+                            <div class="variation ${index === bestIndex ? 'best' : ''}">
+                                ${index === bestIndex ? '<h4>🏆 Лучшая вариация</h4>' : `<h4>Вариация ${index + 1}</h4>`}
+                                <div class="palette-display">
+                                    ${result.palette.map(color => `
+                                        <div class="palette-color" 
+                                             style="background-color: rgb(${color[0]}, ${color[1]}, ${color[2]}); width: 60px; height: 60px; font-size: 10px;"
+                                             onclick="copyColor('${rgbToHex(color)}')"
+                                             title="Нажмите для копирования">
+                                            ${rgbToHex(color)}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div class="harmony-score">
+                                    <div class="score-bar">
+                                        <div class="score-fill" style="width: ${result.harmony_score * 100}%; background: linear-gradient(to right, #ff4757, #ffa726, #52c41a);"></div>
+                                    </div>
+                                    <p>${result.harmony_score.toFixed(3)} - ${getHarmonyLevel(result.harmony_score)}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function rgbToHex(rgb) {
+            return "#" + rgb.map(c => c.toString(16).padStart(2, '0').toUpperCase()).join('');
+        }
+
+        function getHarmonyLevel(score) {
+            if (score >= 0.8) return "⭐ Отлично";
+            if (score >= 0.6) return "✅ Хорошо";
+            if (score >= 0.4) return "⚠️ Удовлетворительно";
+            return "❌ Плохо";
+        }
+
+        function copyColor(hex) {
+            navigator.clipboard.writeText(hex).then(() => {
+                const notification = document.getElementById('copyNotification');
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 2000);
+            });
+        }
+
+        // Предустановленные цветовые схемы
+        function loadPreset(preset) {
+            const presets = {
+                sunset: ['#FF6B6B', '#FF8E53', '#FF8E53'],
+                ocean: ['#4ECDC4', '#44A08D', '#093637'],
+                forest: ['#2ECC71', '#27AE60', '#1E8449'],
+                royal: ['#8E44AD', '#9B59B6', '#6C3483'],
+                autumn: ['#E74C3C', '#F39C12', '#D35400']
+            };
+            
+            const colors = presets[preset];
+            const inputs = document.querySelectorAll('.color-input');
+            
+            // Удаляем лишние цвета
+            const currentInputs = document.querySelectorAll('.color-input-group');
+            currentInputs.forEach((group, index) => {
+                if (index >= colors.length) {
+                    group.remove();
+                }
+            });
+            
+            // Обновляем существующие или добавляем новые
+            colors.forEach((color, index) => {
+                if (inputs[index]) {
+                    inputs[index].value = color;
+                    updateColorHex(inputs[index], index);
+                } else {
+                    // Добавляем новый цвет
+                    addColor();
+                    const newInputs = document.querySelectorAll('.color-input');
+                    newInputs[newInputs.length - 1].value = color;
+                    updateColorHex(newInputs[newInputs.length - 1], colorIndex - 1);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
