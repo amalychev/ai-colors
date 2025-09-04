@@ -70,6 +70,15 @@
             font-size: 1.2em;
         }
 
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            pointer-events: none;
+            user-select: none;
+        }
+
         .card {
             background: white;
             border-radius: 15px;
@@ -390,7 +399,10 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎨 AI Colors</h1>
+            <div class="logo">
+                <img src="https://ai-colors.online/favicons/favicon-96x96.png" alt="AI Colors" width="48" height="48">
+                <h1> AI Colors</h1>
+            </div>
             <p>AI-powered harmonious color palette generator</p>
         </div>
 
