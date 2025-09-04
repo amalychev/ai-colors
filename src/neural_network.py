@@ -119,17 +119,29 @@ class ColorPaletteGenerator(nn.Module):
             
             # Добавляем случайный шум для разнообразия
             if randomize:
-                noise_scale = 0.15  # Увеличенный масштаб шума для большего разнообразия
+                # Более агрессивная рандомизация для входных цветов
+                noise_scale = 0.3  # Увеличиваем шум для большего разнообразия
                 noise = torch.randn_like(input_tensor) * noise_scale
                 input_tensor = input_tensor + noise
+                
+                # Добавляем дополнительную вариативность через перестановку
+                if input_tensor.size(1) > 1:
+                    # Случайно перемешиваем каналы цветов для большего разнообразия
+                    perm = torch.randperm(input_tensor.size(1))
+                    input_tensor = input_tensor[:, perm]
                 
                 # Ограничиваем значения в диапазоне [0, 1]
                 input_tensor = torch.clamp(input_tensor, 0.0, 1.0)
                 
                 # Дополнительная рандомизация целевого количества
-                target_noise = torch.randn_like(target_tensor) * 0.1
+                target_noise = torch.randn_like(target_tensor) * 0.2
                 target_tensor = target_tensor + target_noise
                 target_tensor = torch.clamp(target_tensor, 0.1, 1.0)
+                
+                # Добавляем случайный контекстный вектор для еще большего разнообразия
+                context_noise = torch.randn(input_tensor.size(0), input_tensor.size(1), device=input_tensor.device) * 0.1
+                input_tensor = input_tensor + context_noise
+                input_tensor = torch.clamp(input_tensor, 0.0, 1.0)
             
             # Генерируем палитру
             output = self.forward(input_tensor, target_tensor)
@@ -154,8 +166,106 @@ class ColorPaletteGenerator(nn.Module):
                     color = (int(rgb_values[i]), int(rgb_values[i+1]), int(rgb_values[i+2]))
                     colors.append(color)
             
+            # Убираем дубликаты, сохраняя порядок
+            unique_colors = []
+            seen = set()
+            for color in colors:
+                if color not in seen:
+                    unique_colors.append(color)
+                    seen.add(color)
+            
+            # Перемешиваем порядок цветов для разнообразия
+            if randomize and len(unique_colors) > 1:
+                np.random.shuffle(unique_colors)
+            
+            # Если уникальных цветов недостаточно, генерируем дополнительные
+            if len(unique_colors) < target_count:
+                attempts = 0
+                max_attempts = target_count * 10
+                
+                while len(unique_colors) < target_count and attempts < max_attempts:
+                    # Генерируем случайный цвет с большим разнообразием
+                    if unique_colors and randomize:
+                        # Выбираем случайный подход к генерации
+                        approach = np.random.choice(['variation', 'complementary', 'random'])
+                        
+                        if approach == 'variation':
+                            # Небольшие вариации существующего цвета
+                            base_color = unique_colors[np.random.randint(0, len(unique_colors))]
+                            new_color = (
+                                max(0, min(255, base_color[0] + np.random.randint(-50, 51))),
+                                max(0, min(255, base_color[1] + np.random.randint(-50, 51))),
+                                max(0, min(255, base_color[2] + np.random.randint(-50, 51)))
+                            )
+                        elif approach == 'complementary':
+                            # Генерируем дополнительный цвет
+                            base_color = unique_colors[np.random.randint(0, len(unique_colors))]
+                            new_color = (
+                                255 - base_color[0] + np.random.randint(-30, 31),
+                                255 - base_color[1] + np.random.randint(-30, 31), 
+                                255 - base_color[2] + np.random.randint(-30, 31)
+                            )
+                            new_color = (
+                                max(0, min(255, new_color[0])),
+                                max(0, min(255, new_color[1])),
+                                max(0, min(255, new_color[2]))
+                            )
+                        else:
+                            # Полностью случайный цвет
+                            new_color = (
+                                np.random.randint(0, 256),
+                                np.random.randint(0, 256),
+                                np.random.randint(0, 256)
+                            )
+                    else:
+                        # Если нет цветов, генерируем случайный
+                        new_color = (
+                            np.random.randint(0, 256),
+                            np.random.randint(0, 256),
+                            np.random.randint(0, 256)
+                        )
+                    
+                    if new_color not in seen:
+                        unique_colors.append(new_color)
+                        seen.add(new_color)
+                    
+                    attempts += 1
+            
+            # Сохраняем исходные входные цвета для фильтрации
+            input_colors_set = set(input_colors) if input_colors else set()
+            
+            # Фильтруем входные цвета из результата
+            filtered_colors = []
+            for color in unique_colors:
+                if color not in input_colors_set:
+                    filtered_colors.append(color)
+            
+            # Если после фильтрации недостаточно цветов, генерируем дополнительные
+            while len(filtered_colors) < target_count:
+                attempts = 0
+                max_attempts = 50
+                
+                while len(filtered_colors) < target_count and attempts < max_attempts:
+                    # Генерируем новый цвет, избегая входные
+                    new_color = (
+                        np.random.randint(0, 256),
+                        np.random.randint(0, 256),
+                        np.random.randint(0, 256)
+                    )
+                    
+                    # Проверяем, что цвет не является входным и уникален
+                    if (new_color not in input_colors_set and 
+                        new_color not in filtered_colors):
+                        filtered_colors.append(new_color)
+                    
+                    attempts += 1
+                
+                # Если не удалось сгенерировать достаточно, прерываем
+                if attempts >= max_attempts:
+                    break
+            
             # Возвращаем только нужное количество цветов
-            return colors[:target_count]
+            return filtered_colors[:target_count]
     
     def prepare_input(self, colors: List[Tuple[int, int, int]], device: str = 'cpu') -> torch.Tensor:
         """

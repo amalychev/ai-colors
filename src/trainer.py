@@ -257,7 +257,7 @@ class ColorPaletteTrainer:
         
         # Создаем датасет и даталоадер
         dataset = ColorPaletteDataset(palettes_data)
-        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2, persistent_workers=False)
         
         print(f"Начинаем обучение на {len(dataset)} примерах...")
         
@@ -269,6 +269,13 @@ class ColorPaletteTrainer:
             self.train_history['generator_loss'].append(epoch_metrics['generator_loss'])
             self.train_history['discriminator_loss'].append(epoch_metrics['discriminator_loss'])
             self.train_history['harmony_scores'].append(epoch_metrics['harmony_score'])
+            
+            # Очистка памяти каждые 20 эпох
+            if epoch % 20 == 0 and epoch > 0:
+                import gc
+                gc.collect()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
             
             # Выводим прогресс
             if epoch % 10 == 0:
