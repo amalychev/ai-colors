@@ -689,6 +689,23 @@ def generate_random_palette():
             "error": f"Random palette generation error: {str(e)}"
         }), 500
 
+@app.route('/og.png')
+def og_image():
+    """
+    Обслуживает og.png для социальных сетей
+    """
+    try:
+        return send_from_directory(
+            os.path.join(os.path.dirname(__file__), 'templates'),
+            'og.png',
+            mimetype='image/png'
+        )
+    except FileNotFoundError:
+        return jsonify({
+            "success": False,
+            "error": "Image not found"
+        }), 404
+
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({

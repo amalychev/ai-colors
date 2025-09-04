@@ -24,6 +24,12 @@ if [ ! -f "main.py" ]; then
     exit 1
 fi
 
+# Check if virtual environment exists and activate it
+if [ -d "ai-colors-env" ]; then
+    echo "🔧 Activating virtual environment..."
+    source ai-colors-env/bin/activate
+fi
+
 # Run the main Python script with all passed arguments
 echo "🎨 Running AI Colors..."
 python3 main.py "$@"
