@@ -21,6 +21,7 @@
     <meta property="twitter:title" content="🎨 AI Colors - AI-powered Color Palette Generator">
     <meta property="twitter:description" content="AI-powered harmonious color palette generator. Create beautiful color schemes for design in seconds.">
     <meta property="twitter:image" content="./og.png">
+    
     <style>
         * {
             margin: 0;
@@ -187,7 +188,7 @@
             color: #555;
         }
 
-        .control-group input, .control-group select {
+        .control-group input {
             padding: 10px;
             border: 2px solid #ddd;
             border-radius: 8px;
@@ -195,10 +196,11 @@
             transition: border-color 0.3s ease;
         }
 
-        .control-group input:focus, .control-group select:focus {
+        .control-group input:focus {
             outline: none;
             border-color: #667eea;
         }
+        
 
         .generate-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -621,6 +623,7 @@ Color copied to clipboard!
                 }, 2000);
             });
         }
+
 
         // Предустановленные цветовые схемы
         function loadPreset(preset) {
