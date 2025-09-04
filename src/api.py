@@ -690,9 +690,9 @@ def generate_random_palette():
         }), 500
 
 @app.route('/og.png')
-def og_image():
+def og_image_png():
     """
-    Обслуживает og.png для социальных сетей
+    Обслуживает og.png для социальных сетей (deprecated)
     """
     try:
         return send_from_directory(
@@ -704,6 +704,39 @@ def og_image():
         return jsonify({
             "success": False,
             "error": "Image not found"
+        }), 404
+
+@app.route('/og.jpg')
+def og_image_jpg():
+    """
+    Обслуживает og.jpg для социальных сетей
+    """
+    try:
+        return send_from_directory(
+            os.path.join(os.path.dirname(__file__), 'templates'),
+            'og.jpg',
+            mimetype='image/jpeg'
+        )
+    except FileNotFoundError:
+        return jsonify({
+            "success": False,
+            "error": "Image not found"
+        }), 404
+
+@app.route('/favicons/<path:filename>')
+def favicon_files(filename):
+    """
+    Обслуживает файлы favicon
+    """
+    try:
+        return send_from_directory(
+            os.path.join(os.path.dirname(__file__), 'templates', 'favicon'),
+            filename
+        )
+    except FileNotFoundError:
+        return jsonify({
+            "success": False,
+            "error": "Favicon not found"
         }), 404
 
 @app.errorhandler(404)
