@@ -3,7 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎨 AI Colors - Генератор цветовых палитр</title>
+    <title>🎨 AI Colors - Color Palette Generator</title>
+    <meta name="description" content="AI-powered harmonious color palette generator. Create beautiful color schemes for design in seconds.">
+    <meta name="keywords" content="color palette, color generator, design, AI, neural network, color scheme">
+    <meta name="author" content="AI Colors">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ai-colors.app/">
+    <meta property="og:title" content="🎨 AI Colors - AI-powered Color Palette Generator">
+    <meta property="og:description" content="AI-powered harmonious color palette generator. Create beautiful color schemes for design in seconds.">
+    <meta property="og:image" content="./og.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://ai-colors.app/">
+    <meta property="twitter:title" content="🎨 AI Colors - AI-powered Color Palette Generator">
+    <meta property="twitter:description" content="AI-powered harmonious color palette generator. Create beautiful color schemes for design in seconds.">
+    <meta property="twitter:image" content="./og.png">
     <style>
         * {
             margin: 0;
@@ -362,13 +379,13 @@
     <div class="container">
         <div class="header">
             <h1>🎨 AI Colors</h1>
-            <p>Генератор гармоничных цветовых палитр на основе нейросетей</p>
+            <p>AI-powered harmonious color palette generator</p>
         </div>
 
         <div class="card">
             <div class="input-section">
                 <div class="section-title">
-                    🎯 Входные цвета
+                    🎯 Input Colors
                 </div>
                 <div class="color-inputs" id="colorInputs">
                     <button class="add-color" onclick="addColor()">+</button>
@@ -377,32 +394,24 @@
 
             <div class="controls">
                 <div class="control-group">
-                    <label for="targetCount">Количество цветов в палитре:</label>
+                    <label for="targetCount">Number of colors in palette:</label>
                     <input type="number" id="targetCount" min="2" max="10" value="5">
                 </div>
 
                 <div class="control-group">
-                    <label for="variations">Количество вариаций:</label>
+                    <label for="variations">Number of variations:</label>
                     <input type="number" id="variations" min="1" max="5" value="1">
                 </div>
 
-                <div class="control-group">
-                    <label for="randomize">Рандомизация:</label>
-                    <select id="randomize">
-                        <option value="true">Включена</option>
-                        <option value="false">Выключена</option>
-                    </select>
-                </div>
-
                 <button class="generate-btn" onclick="generatePalette()">
-                    ✨ Генерировать палитру
+                    ✨ Generate Palette
                 </button>
             </div>
         </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Генерируем вашу идеальную палитру...</p>
+            <p>Generating your perfect palette...</p>
         </div>
 
         <div class="error" id="error"></div>
@@ -410,7 +419,7 @@
         <div class="results" id="results">
             <div class="card">
                 <div class="section-title">
-                    🌈 Результат
+                    🌈 Result
                 </div>
                 <div id="paletteResults"></div>
             </div>
@@ -418,7 +427,7 @@
     </div>
 
     <div class="copy-notification" id="copyNotification">
-        Цвет скопирован в буфер обмена!
+Color copied to clipboard!
     </div>
 
     <script>
@@ -432,7 +441,7 @@
 
         function addColor() {
             if (document.querySelectorAll('.color-input').length >= maxColors) {
-                alert(`Максимум ${maxColors} цветов`);
+                alert(`Maximum ${maxColors} colors`);
                 return;
             }
 
@@ -487,7 +496,7 @@
 
             const targetCount = parseInt(document.getElementById('targetCount').value);
             const variations = parseInt(document.getElementById('variations').value);
-            const randomize = document.getElementById('randomize').value === 'true';
+            const randomize = true; // Always enabled
 
             // Показываем loading
             document.getElementById('loading').style.display = 'block';
@@ -524,7 +533,7 @@
 
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('error').innerHTML = `❌ Ошибка: ${error.message}`;
+                document.getElementById('error').innerHTML = `❌ Error: ${error.message}`;
                 document.getElementById('error').style.display = 'block';
             } finally {
                 document.getElementById('loading').style.display = 'none';
@@ -544,17 +553,17 @@
                             <div class="palette-color"
                                  style="background-color: rgb(${color[0]}, ${color[1]}, ${color[2]})"
                                  onclick="copyColor('${rgbToHex(color)}')"
-                                 title="Нажмите для копирования">
+                                 title="Click to copy">
                                 ${rgbToHex(color)}
                             </div>
                         `).join('')}
                     </div>
                     <div class="harmony-score">
-                        <h3>🎵 Оценка гармоничности</h3>
+                        <h3>🎵 Harmony Score</h3>
                         <div class="score-bar">
                             <div class="score-fill" style="width: ${result.harmony_score * 100}%; background: linear-gradient(to right, #ff4757, #ffa726, #52c41a);"></div>
                         </div>
-                        <p>Оценка ${result.harmony_score.toFixed(2)} / 1.00 - ${getHarmonyLevel(result.harmony_score)}</p>
+                        <p>Score ${result.harmony_score.toFixed(2)} / 1.00 - ${getHarmonyLevel(result.harmony_score)}</p>
                     </div>
                 `;
             } else {
@@ -566,13 +575,13 @@
                     <div class="variations">
                         ${results.map((result, index) => `
                             <div class="variation ${index === bestIndex ? 'best' : ''}">
-                                ${index === bestIndex ? '<h4>🏆 Лучшая вариация</h4>' : `<h4>Вариация ${index + 1}</h4>`}
+                                ${index === bestIndex ? '<h4>🏆 Best Variation</h4>' : `<h4>Variation ${index + 1}</h4>`}
                                 <div class="palette-display">
                                     ${result.palette.map(color => `
                                         <div class="palette-color"
                                              style="background-color: rgb(${color[0]}, ${color[1]}, ${color[2]}); width: 60px; height: 60px; font-size: 10px;"
                                              onclick="copyColor('${rgbToHex(color)}')"
-                                             title="Нажмите для копирования">
+                                             title="Click to copy">
                                             ${rgbToHex(color)}
                                         </div>
                                     `).join('')}
@@ -597,10 +606,10 @@
         }
 
         function getHarmonyLevel(score) {
-            if (score >= 0.8) return "⭐ Отлично";
-            if (score >= 0.6) return "✅ Хорошо";
-            if (score >= 0.4) return "⚠️ Удовлетворительно";
-            return "❌ Плохо";
+            if (score >= 0.8) return "⭐ Excellent";
+            if (score >= 0.6) return "✅ Good";
+            if (score >= 0.4) return "⚠️ Fair";
+            return "❌ Poor";
         }
 
         function copyColor(hex) {
