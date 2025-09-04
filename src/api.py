@@ -66,29 +66,29 @@ def validate_color(color: Any) -> bool:
 
 def validate_input(data: Dict) -> Tuple[bool, str]:
     """
-    Валидирует входные данные
+    Validates input data
     """
-    # Проверяем наличие обязательных полей
+    # Check required fields
     if 'target_count' not in data:
-        return False, "Отсутствует поле 'target_count'"
+        return False, "Missing field 'Number of colors in palette'"
     
     input_colors = data.get('input_colors', [])
     target_count = data['target_count']
     
-    # Проверяем входные цвета (теперь они полностью необязательны, могут быть пустыми)
+    # Check input colors (now completely optional, can be empty)
     if not isinstance(input_colors, list):
-        return False, "input_colors должен быть списком"
+        return False, "Input colors must be a list"
     
     if len(input_colors) > 9:
-        return False, "Максимум 9 входных цветов"
+        return False, "Maximum 9 input colors allowed"
     
     for i, color in enumerate(input_colors):
         if not validate_color(color):
-            return False, f"Некорректный цвет в позиции {i}: {color}"
+            return False, f"Invalid color at position {i}: {color}"
     
-    # Проверяем целевое количество
+    # Check target count
     if not isinstance(target_count, int) or target_count < 2 or target_count > 10:
-        return False, "target_count должен быть целым числом от 2 до 10"
+        return False, "Number of colors in palette must be an integer from 2 to 10"
     
     return True, ""
 
@@ -537,7 +537,7 @@ def generate_palette():
         if not data:
             return jsonify({
                 "success": False,
-                "error": "Пустой JSON"
+                "error": "Empty JSON request"
             }), 400
         
         # Валидируем входные данные
@@ -583,7 +583,7 @@ def generate_palette():
     except Exception as e:
         return jsonify({
             "success": False,
-            "error": f"Ошибка генерации: {str(e)}"
+            "error": f"Generation error: {str(e)}"
         }), 500
 
 @app.route('/evaluate', methods=['POST'])
@@ -597,7 +597,7 @@ def evaluate_palette():
         if not data or 'colors' not in data:
             return jsonify({
                 "success": False,
-                "error": "Отсутствует поле 'colors'"
+                "error": "Missing field 'colors'"
             }), 400
         
         colors = data['colors']
@@ -606,29 +606,29 @@ def evaluate_palette():
         if not isinstance(colors, list) or len(colors) < 2:
             return jsonify({
                 "success": False,
-                "error": "colors должен содержать минимум 2 цвета"
+                "error": "Colors must contain at least 2 colors"
             }), 400
         
         for i, color in enumerate(colors):
             if not validate_color(color):
                 return jsonify({
                     "success": False,
-                    "error": f"Некорректный цвет в позиции {i}: {color}"
+                    "error": f"Invalid color at position {i}: {color}"
                 }), 400
         
         # Конвертируем в кортежи и вычисляем гармоничность
         colors_tuples = [tuple(color) for color in colors]
         harmony_score = calculate_color_harmony_score(colors_tuples)
         
-        # Классификация гармоничности
+        # Harmony classification
         if harmony_score >= 0.8:
-            harmony_level = "отлично"
+            harmony_level = "excellent"
         elif harmony_score >= 0.6:
-            harmony_level = "хорошо"
+            harmony_level = "good"
         elif harmony_score >= 0.4:
-            harmony_level = "удовлетворительно"
+            harmony_level = "fair"
         else:
-            harmony_level = "плохо"
+            harmony_level = "poor"
         
         return jsonify({
             "success": True,
@@ -640,7 +640,7 @@ def evaluate_palette():
     except Exception as e:
         return jsonify({
             "success": False,
-            "error": f"Ошибка оценки: {str(e)}"
+            "error": f"Evaluation error: {str(e)}"
         }), 500
 
 @app.route('/random', methods=['GET'])
@@ -686,28 +686,28 @@ def generate_random_palette():
     except Exception as e:
         return jsonify({
             "success": False,
-            "error": f"Ошибка генерации случайной палитры: {str(e)}"
+            "error": f"Random palette generation error: {str(e)}"
         }), 500
 
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({
         "success": False,
-        "error": "Endpoint не найден"
+        "error": "Endpoint not found"
     }), 404
 
 @app.errorhandler(405)
 def method_not_allowed(error):
     return jsonify({
         "success": False,
-        "error": "Метод не разрешен"
+        "error": "Method not allowed"
     }), 405
 
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({
         "success": False,
-        "error": "Внутренняя ошибка сервера"
+        "error": "Internal server error"
     }), 500
 
 if __name__ == '__main__':

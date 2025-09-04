@@ -498,7 +498,6 @@ Color copied to clipboard!
 
             const targetCount = parseInt(document.getElementById('targetCount').value);
             const variations = parseInt(document.getElementById('variations').value);
-            const randomize = true; // Always enabled
 
             // Показываем loading
             document.getElementById('loading').style.display = 'block';
@@ -517,8 +516,7 @@ Color copied to clipboard!
                         },
                         body: JSON.stringify({
                             input_colors: inputColors,
-                            target_count: targetCount,
-                            randomize: randomize
+                            target_count: targetCount
                         })
                     });
 

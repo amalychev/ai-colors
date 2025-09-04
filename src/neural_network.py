@@ -99,15 +99,18 @@ class ColorPaletteGenerator(nn.Module):
                 torch.manual_seed(random_seed)
                 np.random.seed(random_seed)
             
-            # Если нет входных цветов, генерируем случайный базовый цвет
+            # Если нет входных цветов, генерируем случайные базовые цвета
             if not input_colors:
                 import random
-                base_color = (
-                    random.randint(0, 255),
-                    random.randint(0, 255), 
-                    random.randint(0, 255)
-                )
-                input_colors = [base_color]
+                # Генерируем 1-3 случайных цвета для большего разнообразия
+                num_base_colors = random.randint(1, 3)
+                for _ in range(num_base_colors):
+                    base_color = (
+                        random.randint(0, 255),
+                        random.randint(0, 255), 
+                        random.randint(0, 255)
+                    )
+                    input_colors.append(base_color)
             
             # Подготавливаем входные данные
             input_tensor = self.prepare_input(input_colors, device)
@@ -116,12 +119,17 @@ class ColorPaletteGenerator(nn.Module):
             
             # Добавляем случайный шум для разнообразия
             if randomize:
-                noise_scale = 0.05  # Уменьшенный масштаб шума
+                noise_scale = 0.15  # Увеличенный масштаб шума для большего разнообразия
                 noise = torch.randn_like(input_tensor) * noise_scale
                 input_tensor = input_tensor + noise
                 
                 # Ограничиваем значения в диапазоне [0, 1]
                 input_tensor = torch.clamp(input_tensor, 0.0, 1.0)
+                
+                # Дополнительная рандомизация целевого количества
+                target_noise = torch.randn_like(target_tensor) * 0.1
+                target_tensor = target_tensor + target_noise
+                target_tensor = torch.clamp(target_tensor, 0.1, 1.0)
             
             # Генерируем палитру
             output = self.forward(input_tensor, target_tensor)
