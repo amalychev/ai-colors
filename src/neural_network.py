@@ -76,7 +76,7 @@ class ColorPaletteGenerator(nn.Module):
         Генерирует цветовую палитру на основе входных цветов
         
         Args:
-            input_colors: список входных цветов в формате RGB
+            input_colors: список входных цветов в формате RGB (может быть пустым)
             target_count: желаемое количество выходных цветов
             device: устройство для вычислений ('cpu' или 'cuda')
             randomize: добавлять ли случайность для разнообразия результатов
@@ -99,6 +99,16 @@ class ColorPaletteGenerator(nn.Module):
                 torch.manual_seed(random_seed)
                 np.random.seed(random_seed)
             
+            # Если нет входных цветов, генерируем случайный базовый цвет
+            if not input_colors:
+                import random
+                base_color = (
+                    random.randint(0, 255),
+                    random.randint(0, 255), 
+                    random.randint(0, 255)
+                )
+                input_colors = [base_color]
+            
             # Подготавливаем входные данные
             input_tensor = self.prepare_input(input_colors, device)
             target_tensor = torch.tensor([[target_count / self.max_colors]], 
@@ -115,6 +125,15 @@ class ColorPaletteGenerator(nn.Module):
             
             # Генерируем палитру
             output = self.forward(input_tensor, target_tensor)
+            
+            # Принудительно ограничиваем вывод сети
+            output = torch.clamp(output, 0.0, 1.0)
+            
+            # Проверяем на NaN/Inf
+            if torch.any(torch.isnan(output)) or torch.any(torch.isinf(output)):
+                print("⚠️ NaN/Inf в выводе сети, заменяем")
+                output = torch.nan_to_num(output, nan=0.5, posinf=1.0, neginf=0.0)
+                output = torch.clamp(output, 0.0, 1.0)
             
             # Преобразуем в RGB значения
             rgb_values = (output.squeeze() * 255).cpu().numpy().astype(int)
@@ -188,6 +207,14 @@ class ColorHarmonyDiscriminator(nn.Module):
         Returns:
             Оценка гармоничности [batch_size, 1] (0-1, где 1 = гармоничная)
         """
+        # Принудительно ограничиваем входные данные
+        colors = torch.clamp(colors, 0.0, 1.0)
+        
+        # Проверяем на NaN/Inf
+        if torch.any(torch.isnan(colors)) or torch.any(torch.isinf(colors)):
+            colors = torch.nan_to_num(colors, nan=0.5, posinf=1.0, neginf=0.0)
+            colors = torch.clamp(colors, 0.0, 1.0)
+        
         return self.network(colors)
 
 

@@ -170,18 +170,21 @@ class ColorPaletteTrainer:
             target_count = batch['target_count'].to(self.device)
             batch_size = input_colors.size(0)
             
-            # Проверяем диапазон значений перед обработкой
-            if torch.any(input_colors < 0) or torch.any(input_colors > 1):
-                print(f"Некорректные input_colors: min={input_colors.min():.3f}, max={input_colors.max():.3f}")
-            if torch.any(target_colors < 0) or torch.any(target_colors > 1):
-                print(f"Некорректные target_colors: min={target_colors.min():.3f}, max={target_colors.max():.3f}")
-            if torch.any(target_count < 0) or torch.any(target_count > 1):
-                print(f"Некорректные target_count: min={target_count.min():.3f}, max={target_count.max():.3f}")
+            # Принудительно нормализуем ВСЕ данные
+            def safe_normalize(tensor, name="tensor"):
+                if torch.any(torch.isnan(tensor)) or torch.any(torch.isinf(tensor)):
+                    print(f"⚠️ NaN/Inf в {name}, заменяем на 0")
+                    tensor = torch.nan_to_num(tensor, nan=0.0, posinf=0.5, neginf=0.0)
+                
+                if torch.any(tensor < 0) or torch.any(tensor > 1):
+                    print(f"⚠️ Некорректные значения в {name}: min={tensor.min():.3f}, max={tensor.max():.3f}")
+                    tensor = torch.clamp(tensor, 0.0, 1.0)
+                
+                return tensor
             
-            # Принудительно ограничиваем все входные данные
-            input_colors = torch.clamp(input_colors, 0.0, 1.0)
-            target_colors = torch.clamp(target_colors, 0.0, 1.0)
-            target_count = torch.clamp(target_count, 0.0, 1.0)
+            input_colors = safe_normalize(input_colors, "input_colors")
+            target_colors = safe_normalize(target_colors, "target_colors") 
+            target_count = safe_normalize(target_count, "target_count")
             
             # === Обучение дискриминатора ===
             self.optimizer_d.zero_grad()
@@ -193,8 +196,8 @@ class ColorPaletteTrainer:
             
             # Сгенерированные палитры
             fake_colors = self.generator(input_colors, target_count)
-            # Убеждаемся что значения в правильном диапазоне
-            fake_colors = torch.clamp(fake_colors, 0.0, 1.0)
+            # Принудительная нормализация сгенерированных цветов
+            fake_colors = safe_normalize(fake_colors, "fake_colors")
             
             fake_labels = torch.zeros(batch_size, 1, device=self.device)
             fake_output = self.discriminator(fake_colors.detach())
@@ -209,15 +212,15 @@ class ColorPaletteTrainer:
             
             # Генерируем палитры
             generated_colors = self.generator(input_colors, target_count)
-            # Ограничиваем значения
-            generated_colors = torch.clamp(generated_colors, 0.0, 1.0)
+            # Нормализуем сгенерированные цвета
+            generated_colors = safe_normalize(generated_colors, "generated_colors")
             
             # Adversarial loss
             gen_output = self.discriminator(generated_colors)
             adversarial_loss = self.adversarial_loss(gen_output, real_labels)
             
-            # Color similarity loss
-            color_similarity_loss = self.color_loss(generated_colors, target_colors)
+            # Color similarity loss (только MSE, без diversity loss)
+            color_similarity_loss = nn.MSELoss()(generated_colors, target_colors)
             
             # Общие потери генератора
             g_loss = adversarial_loss + color_similarity_loss

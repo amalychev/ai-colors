@@ -71,6 +71,7 @@
         }
 
         .color-input-group {
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -132,6 +133,7 @@
         .add-color {
             width: 80px;
             height: 80px;
+            margin: 0 20px;
             border: 3px dashed #ddd;
             border-radius: 50%;
             background: transparent;
@@ -310,7 +312,7 @@
         .copy-notification {
             position: fixed;
             top: 20px;
-            right: 20px;
+            right: 0;
             background: #52c41a;
             color: white;
             padding: 10px 20px;
@@ -322,6 +324,7 @@
 
         .copy-notification.show {
             transform: translateX(0);
+            right: 20px;
         }
 
         .error {
@@ -338,16 +341,16 @@
             .container {
                 padding: 10px;
             }
-            
+
             .header h1 {
                 font-size: 2em;
             }
-            
+
             .controls {
                 flex-direction: column;
                 align-items: stretch;
             }
-            
+
             .palette-color {
                 width: 80px;
                 height: 80px;
@@ -368,16 +371,6 @@
                     🎯 Входные цвета
                 </div>
                 <div class="color-inputs" id="colorInputs">
-                    <div class="color-input-group">
-                        <input type="color" class="color-input" value="#ff0000" data-index="0">
-                        <div class="color-hex">#FF0000</div>
-                        <button class="remove-color" onclick="removeColor(0)">×</button>
-                    </div>
-                    <div class="color-input-group">
-                        <input type="color" class="color-input" value="#00ff00" data-index="1">
-                        <div class="color-hex">#00FF00</div>
-                        <button class="remove-color" onclick="removeColor(1)">×</button>
-                    </div>
                     <button class="add-color" onclick="addColor()">+</button>
                 </div>
             </div>
@@ -387,12 +380,12 @@
                     <label for="targetCount">Количество цветов в палитре:</label>
                     <input type="number" id="targetCount" min="2" max="10" value="5">
                 </div>
-                
+
                 <div class="control-group">
                     <label for="variations">Количество вариаций:</label>
                     <input type="number" id="variations" min="1" max="5" value="1">
                 </div>
-                
+
                 <div class="control-group">
                     <label for="randomize">Рандомизация:</label>
                     <select id="randomize">
@@ -400,7 +393,7 @@
                         <option value="false">Выключена</option>
                     </select>
                 </div>
-                
+
                 <button class="generate-btn" onclick="generatePalette()">
                     ✨ Генерировать палитру
                 </button>
@@ -445,7 +438,7 @@
 
             const colorInputs = document.getElementById('colorInputs');
             const addButton = colorInputs.querySelector('.add-color');
-            
+
             const newGroup = document.createElement('div');
             newGroup.className = 'color-input-group';
             newGroup.innerHTML = `
@@ -453,25 +446,21 @@
                 <div class="color-hex">#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0').toUpperCase()}</div>
                 <button class="remove-color" onclick="removeColor(${colorIndex})">×</button>
             `;
-            
+
             colorInputs.insertBefore(newGroup, addButton);
-            
+
             const newInput = newGroup.querySelector('.color-input');
             updateColorHex(newInput, colorIndex);
             newInput.addEventListener('input', function() {
                 updateColorHex(this, this.dataset.index);
             });
-            
+
             colorIndex++;
         }
 
         function removeColor(index) {
             const inputs = document.querySelectorAll('.color-input');
-            if (inputs.length <= 1) {
-                alert('Минимум 1 цвет');
-                return;
-            }
-            
+
             const input = document.querySelector(`[data-index="${index}"]`);
             if (input) {
                 input.parentNode.remove();
@@ -508,7 +497,7 @@
 
             try {
                 const results = [];
-                
+
                 for (let i = 0; i < variations; i++) {
                     const response = await fetch('/generate', {
                         method: 'POST',
@@ -523,11 +512,11 @@
                     });
 
                     const result = await response.json();
-                    
+
                     if (!result.success) {
                         throw new Error(result.error);
                     }
-                    
+
                     results.push(result);
                 }
 
@@ -545,14 +534,14 @@
 
         function displayResults(results, inputColors) {
             const resultsDiv = document.getElementById('paletteResults');
-            
+
             if (results.length === 1) {
                 // Одна палитра
                 const result = results[0];
                 resultsDiv.innerHTML = `
                     <div class="palette-display">
                         ${result.palette.map(color => `
-                            <div class="palette-color" 
+                            <div class="palette-color"
                                  style="background-color: rgb(${color[0]}, ${color[1]}, ${color[2]})"
                                  onclick="copyColor('${rgbToHex(color)}')"
                                  title="Нажмите для копирования">
@@ -565,14 +554,14 @@
                         <div class="score-bar">
                             <div class="score-fill" style="width: ${result.harmony_score * 100}%; background: linear-gradient(to right, #ff4757, #ffa726, #52c41a);"></div>
                         </div>
-                        <p>${result.harmony_score.toFixed(3)} / 1.000 - ${getHarmonyLevel(result.harmony_score)}</p>
+                        <p>Оценка ${result.harmony_score.toFixed(2)} / 1.00 - ${getHarmonyLevel(result.harmony_score)}</p>
                     </div>
                 `;
             } else {
                 // Несколько вариаций
-                const bestIndex = results.reduce((best, current, index) => 
+                const bestIndex = results.reduce((best, current, index) =>
                     current.harmony_score > results[best].harmony_score ? index : best, 0);
-                
+
                 resultsDiv.innerHTML = `
                     <div class="variations">
                         ${results.map((result, index) => `
@@ -580,7 +569,7 @@
                                 ${index === bestIndex ? '<h4>🏆 Лучшая вариация</h4>' : `<h4>Вариация ${index + 1}</h4>`}
                                 <div class="palette-display">
                                     ${result.palette.map(color => `
-                                        <div class="palette-color" 
+                                        <div class="palette-color"
                                              style="background-color: rgb(${color[0]}, ${color[1]}, ${color[2]}); width: 60px; height: 60px; font-size: 10px;"
                                              onclick="copyColor('${rgbToHex(color)}')"
                                              title="Нажмите для копирования">
@@ -633,10 +622,10 @@
                 royal: ['#8E44AD', '#9B59B6', '#6C3483'],
                 autumn: ['#E74C3C', '#F39C12', '#D35400']
             };
-            
+
             const colors = presets[preset];
             const inputs = document.querySelectorAll('.color-input');
-            
+
             // Удаляем лишние цвета
             const currentInputs = document.querySelectorAll('.color-input-group');
             currentInputs.forEach((group, index) => {
@@ -644,7 +633,7 @@
                     group.remove();
                 }
             });
-            
+
             // Обновляем существующие или добавляем новые
             colors.forEach((color, index) => {
                 if (inputs[index]) {
