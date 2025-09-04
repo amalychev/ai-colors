@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory, abort
 import torch
 import os
 from typing import List, Tuple, Dict, Any
@@ -718,10 +718,7 @@ def og_image_jpg():
             mimetype='image/jpeg'
         )
     except FileNotFoundError:
-        return jsonify({
-            "success": False,
-            "error": "Image not found"
-        }), 404
+        abort(404)
 
 @app.route('/favicons/<path:filename>')
 def favicon_files(filename):
@@ -734,10 +731,7 @@ def favicon_files(filename):
             filename
         )
     except FileNotFoundError:
-        return jsonify({
-            "success": False,
-            "error": "Favicon not found"
-        }), 404
+        abort(404)
 
 @app.errorhandler(404)
 def not_found(error):
