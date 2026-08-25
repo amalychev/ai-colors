@@ -1,106 +1,106 @@
-# 🎨 AI Colors - Нейросеть для генерации цветовых палитр
+# 🎨 AI Colors - Neural Network for Color Palette Generation
 
-Интеллектуальная система для создания гармоничных цветовых палитр на основе нейронных сетей. Проект позволяет обучить модель на ваших изображениях и генерировать красивые цветовые сочетания.
+An intelligent system for creating harmonious color palettes based on neural networks. The project lets you train a model on your own images and generate beautiful color combinations.
 
-## ✨ Возможности
+## ✨ Features
 
-- 🧠 **Обучение на пользовательских данных**: Обучите модель на своих изображениях дизайна
-- 🎯 **Гибкая генерация**: Задайте от 1 до 9 входных цветов и получите от 2 до 10 цветов в палитре
-- 🔍 **Извлечение цветов**: Автоматическое извлечение цветовых палитр из изображений
-- 🌈 **Оценка гармоничности**: Автоматическая оценка красоты цветовых сочетаний
-- 🚀 **REST API**: Простое HTTP API для интеграции в другие проекты
-- 🎨 **Множество методов**: K-means, ColorThief, гистограммный анализ
+- 🧠 **Training on custom data**: Train the model on your own design images
+- 🎯 **Flexible generation**: Provide 1 to 9 input colors and get 2 to 10 colors in the palette
+- 🔍 **Color extraction**: Automatic extraction of color palettes from images
+- 🌈 **Harmony scoring**: Automatic evaluation of how pleasing a color combination is
+- 🚀 **REST API**: Simple HTTP API for integration into other projects
+- 🎨 **Multiple methods**: K-means, ColorThief, histogram analysis
 
-## 🛠 Установка
+## 🛠 Installation
 
-### Требования
+### Requirements
 - Python 3.8+
-- CUDA (опционально, для GPU ускорения)
+- CUDA (optional, for GPU acceleration)
 
-### Установка зависимостей
+### Installing dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## 📁 Структура проекта
+## 📁 Project structure
 
 ```
 ai-colors/
-├── src/                    # Исходный код
-│   ├── color_extractor.py  # Модуль извлечения цветов
-│   ├── neural_network.py   # Архитектура нейросети
-│   ├── trainer.py          # Система обучения
+├── src/                    # Source code
+│   ├── color_extractor.py  # Color extraction module
+│   ├── neural_network.py   # Neural network architecture
+│   ├── trainer.py          # Training system
 │   └── api.py             # REST API
-├── training_images/        # Папка для обучающих изображений
-├── data/                   # Обработанные данные
-├── models/                 # Сохраненные модели
-├── notebooks/              # Jupyter ноутбуки
-├── tests/                  # Тесты
-├── main.py                 # Главный скрипт
-└── requirements.txt        # Зависимости
+├── training_images/        # Folder for training images
+├── data/                   # Processed data
+├── models/                 # Saved models
+├── notebooks/              # Jupyter notebooks
+├── tests/                  # Tests
+├── main.py                 # Main script
+└── requirements.txt        # Dependencies
 ```
 
-## 🚀 Быстрый старт
+## 🚀 Quick start
 
-### 1. Подготовка данных
+### 1. Preparing data
 
-Поместите ваши изображения дизайнов в папку `training_images/`:
+Place your design images into the `training_images/` folder:
 
 ```bash
-# Создание папки для изображений
+# Create the folder for images
 mkdir -p training_images
 
-# Скопируйте ваши изображения в эту папку
+# Copy your images into this folder
 cp /path/to/your/images/* training_images/
 ```
 
-### 2. Обработка изображений
+### 2. Processing images
 
-Извлеките цветовые палитры из изображений:
+Extract color palettes from images:
 
 ```bash
 python main.py process training_images
 ```
 
-### 3. Обучение модели
+### 3. Training the model
 
 ```bash
 python main.py train training_images --epochs 100 --batch-size 32
 ```
 
-### 4. Запуск API
+### 4. Running the API
 
 ```bash
 python main.py api
 ```
 
-API будет доступен по адресу: http://localhost:5000
+The API will be available at: http://localhost:5000
 
-## 📖 Использование
+## 📖 Usage
 
-### Командная строка
+### Command line
 
-#### Извлечение цветов из изображения
+#### Extracting colors from an image
 
 ```bash
-# Извлечь 5 цветов методом K-means
+# Extract 5 colors using the K-means method
 python main.py extract path/to/image.jpg --colors 5 --method kmeans
 
-# Использовать ColorThief
+# Use ColorThief
 python main.py extract path/to/image.jpg --colors 8 --method colorthief
 ```
 
-#### Тестирование генерации
+#### Testing generation
 
 ```bash
-# Генерация палитры из красного и зеленого цветов
+# Generate a palette from red and green
 python main.py test 255,0,0 0,255,0 --count 7
 ```
 
 ### HTTP API
 
-#### Генерация палитры
+#### Generating a palette
 
 ```bash
 curl -X POST http://localhost:5000/generate \
@@ -111,7 +111,7 @@ curl -X POST http://localhost:5000/generate \
   }'
 ```
 
-#### Оценка гармоничности
+#### Harmony evaluation
 
 ```bash
 curl -X POST http://localhost:5000/evaluate \
@@ -121,7 +121,7 @@ curl -X POST http://localhost:5000/evaluate \
   }'
 ```
 
-#### Случайная палитра
+#### Random palette
 
 ```bash
 curl http://localhost:5000/random
@@ -133,99 +133,99 @@ curl http://localhost:5000/random
 from src.neural_network import ColorPaletteGenerator
 from src.trainer import ColorPaletteTrainer
 
-# Загрузка обученной модели
+# Load the trained model
 trainer = ColorPaletteTrainer()
 trainer.load_model("models/color_palette_generator_final.pth")
 
-# Генерация палитры
-input_colors = [(255, 0, 0), (0, 255, 0)]  # Красный и зеленый
+# Generate a palette
+input_colors = [(255, 0, 0), (0, 255, 0)]  # Red and green
 palette = trainer.generator.generate_palette(input_colors, target_count=5)
 
-print("Сгенерированная палитра:", palette)
+print("Generated palette:", palette)
 ```
 
-## 🎨 Примеры палитр
+## 🎨 Palette examples
 
-### Входные цвета: Красный + Синий
-- 🔴 `(255, 0, 0)` - Красный
-- 🔵 `(0, 0, 255)` - Синий
+### Input colors: Red + Blue
+- 🔴 `(255, 0, 0)` - Red
+- 🔵 `(0, 0, 255)` - Blue
 
-### Сгенерированная палитра:
-- 🔴 `(255, 0, 0)` - Красный
-- 🔵 `(0, 0, 255)` - Синий  
-- 🟣 `(128, 0, 128)` - Фиолетовый
-- 🌸 `(255, 192, 203)` - Розовый
-- 💙 `(173, 216, 230)` - Светло-голубой
+### Generated palette:
+- 🔴 `(255, 0, 0)` - Red
+- 🔵 `(0, 0, 255)` - Blue
+- 🟣 `(128, 0, 128)` - Purple
+- 🌸 `(255, 192, 203)` - Pink
+- 💙 `(173, 216, 230)` - Light blue
 
-**Оценка гармоничности: 0.827** ⭐
+**Harmony score: 0.827** ⭐
 
-## ⚙️ Настройка
+## ⚙️ Configuration
 
-### Параметры обучения
+### Training parameters
 
-- `--epochs`: Количество эпох обучения (по умолчанию: 100)
-- `--batch-size`: Размер батча (по умолчанию: 32)
-- Модель автоматически сохраняется каждые 10 эпох
+- `--epochs`: Number of training epochs (default: 100)
+- `--batch-size`: Batch size (default: 32)
+- The model is automatically saved every 10 epochs
 
-### Архитектура нейросети
+### Neural network architecture
 
-- **Encoder-Decoder** архитектура с attention механизмом
-- **Adversarial training** с дискриминатором для оценки гармоничности
-- **Custom loss function** учитывающая цветовую близость и разнообразие
+- **Encoder-Decoder** architecture with an attention mechanism
+- **Adversarial training** with a discriminator for harmony scoring
+- **Custom loss function** accounting for color similarity and diversity
 
-## 📊 Метрики качества
+## 📊 Quality metrics
 
-Система оценивает палитры по следующим критериям:
+The system evaluates palettes based on the following criteria:
 
-- **Цветовая гармония**: Классические правила (комплементарные, триадные, аналоговые)
-- **Разнообразие**: Достаточное различие между цветами
-- **Эстетическая привлекательность**: На основе обученной модели
+- **Color harmony**: Classic rules (complementary, triadic, analogous)
+- **Diversity**: Sufficient distinction between colors
+- **Aesthetic appeal**: Based on the trained model
 
-### Шкала оценок:
-- **0.8+** - Отлично 🌟
-- **0.6-0.8** - Хорошо ✅  
-- **0.4-0.6** - Удовлетворительно ⚠️
-- **<0.4** - Плохо ❌
+### Rating scale:
+- **0.8+** - Excellent 🌟
+- **0.6-0.8** - Good ✅
+- **0.4-0.6** - Fair ⚠️
+- **<0.4** - Poor ❌
 
-## 🔧 Расширение
+## 🔧 Extending
 
-### Добавление новых методов извлечения цветов
+### Adding new color extraction methods
 
 ```python
-# В color_extractor.py
+# In color_extractor.py
 def custom_extraction_method(self, image_path: str, n_colors: int) -> List[Tuple[int, int, int]]:
-    # Ваш код извлечения цветов
+    # Your color extraction code
     return colors
 ```
 
-### Кастомная функция потерь
+### Custom loss function
 
 ```python
-# В neural_network.py
+# In neural_network.py
 class CustomLoss(nn.Module):
     def forward(self, generated, target):
-        # Ваша логика вычисления потерь
+        # Your loss computation logic
         return loss
 ```
 
-## 🤝 Вклад в проект
+## 🤝 Contributing
 
-1. Fork проекта
-2. Создайте feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit изменений (`git commit -m 'Add amazing feature'`)
-4. Push в branch (`git push origin feature/amazing-feature`)
-5. Откройте Pull Request
+1. Fork the project
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📝 Лицензия
+## 📝 License
 
-MIT License - см. файл [LICENSE](LICENSE)
+MIT License - see the [LICENSE](LICENSE) file
 
-## 🙏 Благодарности
+## 🙏 Acknowledgments
 
-- PyTorch команда за отличный фреймворк
-- ColorThief за алгоритмы извлечения цветов
-- Сообщество дизайнеров за вдохновение
+- The PyTorch team for a great framework
+- ColorThief for color extraction algorithms
+- The design community for inspiration
 
 ---
 
-**Создано с ❤️ для дизайнеров и разработчиков**
+**Made with ❤️ for designers and developers**
